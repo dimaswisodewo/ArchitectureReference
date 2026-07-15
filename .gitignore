@@ -1,0 +1,44 @@
+# Xcode
+#
+# gitignore template for Xcode / Swift projects
+
+# Xcode User Data
+xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.sandboxBookkeeping
+
+# Build artifacts
+build/
+DerivedData/
+
+# Packages
+.swiftpm/
+.build/
+
+# Playgrounds
+*.playground/xcuserdata/
+*.playground/playground.xcworkspace/xcuserdata/
+
+# Carthage
+Carthage/Build/
+
+# CocoaPods
+#
+# We recommend against committing the Pods directory to your codebase. However, if you
+# do decide to do so, remove the line below.
+Pods/
+
+# Swift Package Manager
+.swiftpm/xcode/package.xcworkspace/xcuserdata/
+.swiftpm/xcode/xcuserdata/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+# macOS Finder files
+.DS_Store
