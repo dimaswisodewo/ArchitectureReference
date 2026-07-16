@@ -1,7 +1,10 @@
 import SwiftUI
 import UIKit
 
-protocol PokemonNavigator: AppNavigator {}
+protocol PokemonNavigator: AppNavigator {
+    @MainActor
+    func navigateToPokemonDetail(_ pokemon: PokemonEntity)
+}
 
 final class PokemonCoordinator: Coordinator, PokemonNavigator {
     let navigationController: UINavigationController
@@ -21,6 +24,18 @@ final class PokemonCoordinator: Coordinator, PokemonNavigator {
             navigationController.setViewControllers([hostingController], animated: false)
         } catch {
             assertionFailure("Pokémon coordinator failed to resolve dependencies: \(error)")
+        }
+    }
+
+    @MainActor
+    func navigateToPokemonDetail(_ pokemon: PokemonEntity) {
+        do {
+            let useCase: GetPokemonDetailUseCaseProtocol = try container.resolve()
+            let viewModel = PokemonDetailViewModel(summary: pokemon, useCase: useCase)
+            let viewController = UIHostingController(rootView: PokemonDetailView(viewModel: viewModel))
+            navigationController.pushViewController(viewController, animated: true)
+        } catch {
+            assertionFailure("Pokémon detail failed to resolve dependencies: \(error)")
         }
     }
 

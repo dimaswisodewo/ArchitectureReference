@@ -8,13 +8,17 @@ final class PokemonViewModel: ObservableObject {
     @Published private(set) var paginationErrorMessage: String?
 
     private let getPokemonUseCase: GetPokemonUseCaseProtocol
+    private weak var navigator: PokemonNavigator?
     private let pageSize: Int
     private var nextOffset: Int? = 0
 
-    init(getPokemonUseCase: GetPokemonUseCaseProtocol, pageSize: Int = 20) {
+    init(getPokemonUseCase: GetPokemonUseCaseProtocol, navigator: PokemonNavigator? = nil, pageSize: Int = 20) {
         self.getPokemonUseCase = getPokemonUseCase
+        self.navigator = navigator
         self.pageSize = pageSize
     }
+
+    func select(_ pokemon: PokemonEntity) { navigator?.navigateToPokemonDetail(pokemon) }
 
     func loadInitialPage() async {
         guard !state.isLoading else { return }

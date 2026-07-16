@@ -31,7 +31,12 @@ struct PokemonView: View {
         ScrollView {
             LazyVGrid(columns: columns, spacing: 12) {
                 ForEach(pokemon) { item in
-                    PokemonCardView(pokemon: item)
+                    Button {
+                        viewModel.select(item)
+                    } label: {
+                        PokemonCardView(pokemon: item)
+                    }
+                    .buttonStyle(.plain)
                         .task {
                             await viewModel.loadNextPageIfNeeded(currentItem: item)
                         }

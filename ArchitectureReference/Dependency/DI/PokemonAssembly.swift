@@ -23,10 +23,17 @@ final class PokemonAssembly: Assembly {
         container.register(GetPokemonUseCaseProtocol.self) { resolver in
             try GetPokemonUseCase(repository: resolver.resolve())
         }
+        container.register(GetPokemonDetailUseCaseProtocol.self) { resolver in
+            try GetPokemonDetailUseCase(repository: resolver.resolve())
+        }
         
         container.register(PokemonViewModel.self) { resolver in
             try MainActor.assumeIsolated {
-                try PokemonViewModel(getPokemonUseCase: resolver.resolve())
+                let navigator: PokemonNavigator = try resolver.resolve()
+                return try PokemonViewModel(
+                    getPokemonUseCase: resolver.resolve(),
+                    navigator: navigator
+                )
             }
         }
     }

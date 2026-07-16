@@ -19,8 +19,24 @@ final class GetPokemonUseCase: GetPokemonUseCaseProtocol {
     }
 }
 
+protocol GetPokemonDetailUseCaseProtocol {
+    func execute(identifier: Int) async throws -> PokemonDetailEntity
+}
+
+final class GetPokemonDetailUseCase: GetPokemonDetailUseCaseProtocol {
+    private let repository: PokemonRepositoryProtocol
+
+    init(repository: PokemonRepositoryProtocol) { self.repository = repository }
+
+    func execute(identifier: Int) async throws -> PokemonDetailEntity {
+        guard identifier > 0 else { throw PokemonDomainError.invalidIdentifier }
+        return try await repository.fetchPokemonDetail(identifier: identifier)
+    }
+}
+
 enum PokemonDomainError: LocalizedError {
     case invalidPagination
+    case invalidIdentifier
 
     var errorDescription: String? {
         "The requested Pokémon page is invalid."

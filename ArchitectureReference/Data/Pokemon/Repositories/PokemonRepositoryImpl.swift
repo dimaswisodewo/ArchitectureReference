@@ -19,7 +19,7 @@ final class PokemonRepositoryImpl: PokemonRepositoryProtocol {
 
                     do {
                         let detail = try await remoteDataSource.fetchPokemonDetail(identifier: identifier)
-                        return (index, detail.toDomain())
+                        return (index, PokemonEntity(id: detail.id, name: detail.name, artworkURL: detail.sprites.other.officialArtwork.frontDefault))
                     } catch {
                         return (index, PokemonEntity(id: identifier, name: item.name, artworkURL: nil))
                     }
@@ -35,5 +35,9 @@ final class PokemonRepositoryImpl: PokemonRepositoryProtocol {
 
         let nextOffset = response.next == nil ? nil : offset + response.results.count
         return PokemonPage(pokemon: pokemon, nextOffset: nextOffset)
+    }
+
+    func fetchPokemonDetail(identifier: Int) async throws -> PokemonDetailEntity {
+        try await remoteDataSource.fetchPokemonDetail(identifier: identifier).toDomain()
     }
 }

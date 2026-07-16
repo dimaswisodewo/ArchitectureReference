@@ -5,13 +5,15 @@ import UIKit
 final class PokemonFeatureTests: XCTestCase {
     func testListAndDetailDTOsDecodeOfficialArtwork() throws {
         let listData = Data(#"{"count":1,"next":null,"previous":null,"results":[{"name":"bulbasaur","url":"https://pokeapi.co/api/v2/pokemon/1/"}]}"#.utf8)
-        let detailData = Data(#"{"id":1,"name":"bulbasaur","sprites":{"other":{"official-artwork":{"front_default":"https://example.com/1.png"}}}}"#.utf8)
+        let detailData = Data(#"{"id":1,"name":"bulbasaur","height":7,"weight":69,"types":[{"slot":1,"type":{"name":"grass"}}],"abilities":[{"slot":1,"ability":{"name":"overgrow"}}],"stats":[{"base_stat":45,"stat":{"name":"hp"}}],"sprites":{"other":{"official-artwork":{"front_default":"https://example.com/1.png"}}}}"#.utf8)
 
         let list = try JSONDecoder().decode(PokemonListResponseDTO.self, from: listData)
         let detail = try JSONDecoder().decode(PokemonDetailDTO.self, from: detailData)
 
         XCTAssertEqual(list.results.first?.identifier, 1)
         XCTAssertEqual(detail.toDomain().artworkURL?.absoluteString, "https://example.com/1.png")
+        XCTAssertEqual(detail.toDomain().types, ["grass"])
+        XCTAssertEqual(detail.toDomain().stats.first?.baseValue, 45)
     }
 
     func testRepositoryPreservesListOrderAndPagination() async throws {
@@ -26,8 +28,8 @@ final class PokemonFeatureTests: XCTestCase {
                 ]
             ),
             details: [
-                1: PokemonDetailDTO(id: 1, name: "bulbasaur", sprites: .stub),
-                2: PokemonDetailDTO(id: 2, name: "ivysaur", sprites: .stub)
+                1: PokemonDetailDTO(id: 1, name: "bulbasaur", sprites: .stub, types: [], abilities: [], height: 7, weight: 69, stats: []),
+                2: PokemonDetailDTO(id: 2, name: "ivysaur", sprites: .stub, types: [], abilities: [], height: 10, weight: 130, stats: [])
             ]
         )
 
@@ -156,6 +158,9 @@ private final class PokemonRemoteDataSourceStub: PokemonRemoteDataSourceProtocol
 }
 
 private final class PokemonNavigatorStub: PokemonNavigator {
+    var selected: PokemonEntity?
+    @MainActor
+    func navigateToPokemonDetail(_ pokemon: PokemonEntity) { selected = pokemon }
     func dismiss(animated: Bool) {}
     func pop(animated: Bool) {}
 }
