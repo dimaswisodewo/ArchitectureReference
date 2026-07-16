@@ -78,7 +78,8 @@ final class PokemonRepositoryTests: XCTestCase {
         // Arrange
         let remoteDataSource = PokemonRemoteDataSourceStub(
             list: .fixture(next: URL(string: "https://pokeapi.co/api/v2/pokemon?offset=2&limit=2")),
-            details: [1: .fixture(id: 1), 2: .fixture(id: 2, name: "ivysaur")]
+            details: [1: .fixture(id: 1), 2: .fixture(id: 2, name: "ivysaur")],
+            detailDelays: [1: 50_000_000]
         )
         let repository = PokemonRepositoryImpl(remoteDataSource: remoteDataSource)
 
@@ -102,6 +103,50 @@ final class PokemonRepositoryTests: XCTestCase {
         // Assert
         XCTAssertEqual(page.pokemon, [.fixture()])
         XCTAssertFalse(page.hasMore)
+    }
+
+    func testFetchPageUsesPaginationPositionWhenListIdentifierIsMissing() async throws {
+        // Arrange
+        let item = PokemonListItemDTO(
+            name: "unknown",
+            url: URL(string: "https://pokeapi.co/api/v2/pokemon/not-a-number/")!
+        )
+        let list = PokemonListResponseDTO(count: 1, next: nil, previous: nil, results: [item])
+        let repository = PokemonRepositoryImpl(
+            remoteDataSource: PokemonRemoteDataSourceStub(list: list, details: [:])
+        )
+
+        // Act
+        let page = try await repository.fetchPokemonPage(limit: 20, offset: 40)
+
+        // Assert
+        XCTAssertEqual(page.pokemon, [PokemonEntity(id: 41, name: "unknown", artworkURL: nil)])
+    }
+
+    func testFetchPagePropagatesCancellation() async {
+        // Arrange
+        let remoteDataSource = PokemonRemoteDataSourceStub(
+            list: .fixture(resultCount: 1),
+            details: [1: .fixture()],
+            detailDelays: [1: 5_000_000_000]
+        )
+        let repository = PokemonRepositoryImpl(remoteDataSource: remoteDataSource)
+        let task = Task {
+            try await repository.fetchPokemonPage(limit: 20, offset: 0)
+        }
+
+        await Task.yield()
+
+        // Act
+        task.cancel()
+
+        // Assert
+        do {
+            _ = try await task.value
+            XCTFail("Expected cancellation to propagate")
+        } catch {
+            XCTAssertTrue(error is CancellationError)
+        }
     }
 
     func testFetchDetailMapsRemoteDTO() async throws {
@@ -255,15 +300,24 @@ private final class PokemonRepositorySpy: PokemonRepositoryProtocol {
 private final class PokemonRemoteDataSourceStub: PokemonRemoteDataSourceProtocol {
     let list: PokemonListResponseDTO
     let details: [Int: PokemonDetailDTO]
+    let detailDelays: [Int: UInt64]
 
-    init(list: PokemonListResponseDTO, details: [Int: PokemonDetailDTO]) {
+    init(
+        list: PokemonListResponseDTO,
+        details: [Int: PokemonDetailDTO],
+        detailDelays: [Int: UInt64] = [:]
+    ) {
         self.list = list
         self.details = details
+        self.detailDelays = detailDelays
     }
 
     func fetchPokemonList(limit: Int, offset: Int) async throws -> PokemonListResponseDTO { list }
 
     func fetchPokemonDetail(identifier: Int) async throws -> PokemonDetailDTO {
+        if let delay = detailDelays[identifier] {
+            try await Task.sleep(nanoseconds: delay)
+        }
         guard let detail = details[identifier] else { throw TestError.expected }
         return detail
     }
