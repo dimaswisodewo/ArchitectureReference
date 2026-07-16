@@ -13,6 +13,10 @@ struct ArchitectureReferenceApp: App {
     private let navigationController: UINavigationController
     private let container: DependencyContainer
 
+    private var isRunningUnitTests: Bool {
+        ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+    }
+
     init() {
         let container = DependencyContainer()
         Self.setupDependencies(in: container)
@@ -29,8 +33,12 @@ struct ArchitectureReferenceApp: App {
     
     var body: some Scene {
         WindowGroup {
-            CoordinatorView(navigationController: navigationController, container: container)
-                .ignoresSafeArea()
+            if isRunningUnitTests {
+                EmptyView()
+            } else {
+                CoordinatorView(navigationController: navigationController, container: container)
+                    .ignoresSafeArea()
+            }
         }
     }
 }

@@ -10,8 +10,11 @@ import Foundation
 /// URLSession-backed implementation of the NetworkClient interface.
 /// Serves as a pure Swift native alternative to Moya, allowing execution without external pods.
 final class URLSessionNetworkClient: NetworkClient {
-    
-    init() {}
+    private let session: URLSession
+
+    init(session: URLSession = .shared) {
+        self.session = session
+    }
     
     func request<T: Decodable>(_ endpoint: APIEndpoint) async throws -> T {
         var url = endpoint.baseURL
@@ -53,7 +56,7 @@ final class URLSessionNetworkClient: NetworkClient {
         }
         
         // 4. Execute Network Request
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await session.data(for: request)
         
         // 5. Validate Response Status Code
         guard let httpResponse = response as? HTTPURLResponse else {

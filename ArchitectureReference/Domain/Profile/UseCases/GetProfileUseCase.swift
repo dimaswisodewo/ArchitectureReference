@@ -7,7 +7,11 @@
 
 import Foundation
 
-final class GetProfileUseCase {
+protocol GetProfileUseCaseProtocol {
+    func execute(forceRefresh: Bool) async throws -> ProfileEntity
+}
+
+final class GetProfileUseCase: GetProfileUseCaseProtocol {
     private let repository: ProfileRepositoryProtocol
     
     init(repository: ProfileRepositoryProtocol) {

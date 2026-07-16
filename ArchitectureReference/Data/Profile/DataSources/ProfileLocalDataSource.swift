@@ -18,10 +18,16 @@ protocol ProfileLocalDataSourceProtocol {
 /// A lightweight, UserDefaults-backed local data source for cache operations.
 /// Used to keep this reference project self-contained and immediately runnable.
 final class ProfileLocalDataSourceImpl: ProfileLocalDataSourceProtocol {
-    private let userDefaults = UserDefaults.standard
-    private let cacheKey = "com.architecturereference.cache.profile"
+    private let userDefaults: UserDefaults
+    private let cacheKey: String
     
-    init() {}
+    init(
+        userDefaults: UserDefaults = .standard,
+        cacheKey: String = "com.architecturereference.cache.profile"
+    ) {
+        self.userDefaults = userDefaults
+        self.cacheKey = cacheKey
+    }
     
     func getSavedProfile() throws -> ProfileEntity? {
         guard let dict = userDefaults.dictionary(forKey: cacheKey) else {

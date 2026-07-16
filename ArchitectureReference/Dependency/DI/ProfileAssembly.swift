@@ -38,7 +38,7 @@ final class ProfileAssembly: Assembly {
         }
         
         // 4. Register Use Case Interactor
-        container.register(GetProfileUseCase.self) { resolver in
+        container.register(GetProfileUseCaseProtocol.self) { resolver in
             try GetProfileUseCase(repository: resolver.resolve())
         }
         

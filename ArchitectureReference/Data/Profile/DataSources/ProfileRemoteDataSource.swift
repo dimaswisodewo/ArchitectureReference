@@ -40,9 +40,14 @@ protocol ProfileRemoteDataSourceProtocol {
 
 final class ProfileRemoteDataSourceImpl: ProfileRemoteDataSourceProtocol {
     private let networkClient: NetworkClient
+    private let fallbackDelayNanoseconds: UInt64
     
-    init(networkClient: NetworkClient) {
+    init(
+        networkClient: NetworkClient,
+        fallbackDelayNanoseconds: UInt64 = 1_000_000_000
+    ) {
         self.networkClient = networkClient
+        self.fallbackDelayNanoseconds = fallbackDelayNanoseconds
     }
     
     func fetchProfile() async throws -> ProfileDTO {
@@ -62,7 +67,7 @@ final class ProfileRemoteDataSourceImpl: ProfileRemoteDataSourceProtocol {
             print("RemoteDataSource: Remote server unreachable. Mocking remote data for preview. (\(error.localizedDescription))")
             
             // Artificial delay to simulate network latency
-            try? await Task.sleep(nanoseconds: 1_000_000_000)
+            try? await Task.sleep(nanoseconds: fallbackDelayNanoseconds)
             
             return ProfileDTO(
                 id: 1089,

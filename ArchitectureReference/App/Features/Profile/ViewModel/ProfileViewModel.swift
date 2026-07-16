@@ -17,13 +17,13 @@ final class ProfileViewModel: ObservableObject {
     
     // MARK: - Dependencies
     
-    private let getProfileUseCase: GetProfileUseCase
+    private let getProfileUseCase: GetProfileUseCaseProtocol
     private weak var navigator: ProfileNavigator?
     
     // MARK: - Initializer
     
     init(
-        getProfileUseCase: GetProfileUseCase,
+        getProfileUseCase: GetProfileUseCaseProtocol,
         navigator: ProfileNavigator
     ) {
         self.getProfileUseCase = getProfileUseCase
