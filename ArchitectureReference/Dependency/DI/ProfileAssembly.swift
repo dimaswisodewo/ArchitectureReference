@@ -20,12 +20,7 @@ final class ProfileAssembly: Assembly {
             container.registerWeak(ProfileNavigator.self, navigator)
         }
         
-        // 2. Register Core Network Client
-        container.register(NetworkClient.self) { _ in
-            URLSessionNetworkClient()
-        }
-        
-        // 3. Register Data Sources
+        // 2. Register Data Sources. Core dependencies are registered by the app.
         container.register(ProfileRemoteDataSourceProtocol.self) { resolver in
             try ProfileRemoteDataSourceImpl(networkClient: resolver.resolve())
         }
@@ -34,7 +29,7 @@ final class ProfileAssembly: Assembly {
             ProfileLocalDataSourceImpl()
         }
         
-        // 4. Register Repository Interface
+        // 3. Register Repository Interface
         container.register(ProfileRepositoryProtocol.self) { resolver in
             try ProfileRepositoryImpl(
                 remoteDataSource: resolver.resolve(),
@@ -42,12 +37,12 @@ final class ProfileAssembly: Assembly {
             )
         }
         
-        // 5. Register Use Case Interactor
+        // 4. Register Use Case Interactor
         container.register(GetProfileUseCase.self) { resolver in
             try GetProfileUseCase(repository: resolver.resolve())
         }
         
-        // 6. Register ViewModel (Runs on @MainActor, using Swift 6 compile-safe assumeIsolated block)
+        // 5. Register ViewModel (Runs on @MainActor, using Swift 6 compile-safe assumeIsolated block)
         container.register(ProfileViewModel.self) { resolver in
             return try MainActor.assumeIsolated {
                 try ProfileViewModel(

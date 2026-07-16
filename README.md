@@ -1,6 +1,12 @@
 # iOS Clean Architecture Developer Guide & Reference
 *Created by Meynabel Dimas Wisodewo*
 
+## Active Example: Pokédex
+
+The app now starts with a two-column, infinitely scrolling Pokédex powered by the free [PokéAPI](https://pokeapi.co/). The active feature demonstrates paginated remote loading, concurrent detail requests, Clean Architecture boundaries, MVVM state handling, coordinator-based startup, and dependency injection. The original Profile feature remains in the repository as an additional reference implementation.
+
+Application-wide infrastructure is registered by `CoreAssembly` from `ArchitectureReferenceApp.setupDependencies(in:)` before the root coordinator starts. Feature assemblies consume those core services and register only their own feature graph.
+
 This directory provides a complete, production-ready implementation of a modern iOS application architecture built around **Clean Architecture**, **MVVM-C (Model-View-ViewModel-Coordinator)**, and **modular, thread-safe Dependency Injection**.
 
 ---

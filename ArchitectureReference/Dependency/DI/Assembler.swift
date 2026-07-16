@@ -53,6 +53,12 @@ final class DependencyContainer: Assembler {
         let key = String(describing: serviceType)
         factories[key] = factory
     }
+
+    /// Registers a prebuilt shared instance for an app-wide dependency.
+    /// Every resolution of the service type returns this same instance.
+    func registerInstance<T>(_ serviceType: T.Type, instance: T) {
+        register(serviceType) { _ in instance }
+    }
     
     /// Registers a weak reference to a class instance.
     /// This is useful for dependencies (like navigators/coordinators) whose lifecycle is managed
