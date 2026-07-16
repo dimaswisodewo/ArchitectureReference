@@ -42,3 +42,7 @@ fastlane/test_output
 
 # macOS Finder files
 .DS_Store
+
+# XcodeGen local installation
+.xcodegen/
+
